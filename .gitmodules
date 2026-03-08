@@ -1,0 +1,3 @@
+[submodule "libchips"]
+	path = subprojects/libchips
+	url = https://github.com/TheGLander/libchips
