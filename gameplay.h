@@ -9,7 +9,6 @@
 #define GAME_WINDOW_HEIGHT 9
 
 int init_gameplay();
-void render_gameplay(Level const* level, LevelMetadata const* meta, WINDOW* level_win, WINDOW* info_win);
-void render_gameplay_BAD();
+void gameplay_loop();
 
 #endif //TWORLD_TERM_GAMEPLAY_H

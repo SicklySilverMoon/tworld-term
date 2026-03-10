@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 #include <unistd.h>
 #include <curses.h>
 
 #include "formats.h"
 #include "gameplay.h"
 
+#include "graphics.h"
+
 int main(void) {
+    setlocale(LC_ALL, "");
+
     initscr();	// Init the library.
     noecho();	// Do not echo user input.
     cbreak();	// Do not buffer user input, retain Ctrl-Z & Ctrl-C functions.
@@ -16,29 +21,29 @@ int main(void) {
 
     if (has_colors() == FALSE) {
         endwin();
-    	eprintf("Your terminal doesn't support colours");
+    	eprintf("Your terminal doesn't support colours\n");
+        return 1;
+    }
+    start_color();
+    use_default_colors();
+    if (init_graphics()) {
         return 1;
     }
 
-    start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLUE); // fore & background colours.
-
-    attron(COLOR_PAIR(1));
-
-    int y, x;
-    getmaxyx(stdscr, y, x);
-    y = y * 0.5;
-    x = (x * 0.5) - 6;
-    mvwprintw(stdscr, y, x, "Hello World!");
-    mvwprintw(stdscr, 2, 2, "Hello World!");
-    refresh();
-
-    attroff(COLOR_PAIR(1));
+    // printw("COLORS=%d\n", COLORS);
+    // printw("COLOR_PAIRS=%d\n", COLOR_PAIRS);
+    //
+    // for (int i = 0; i < COLORS && i < 16; i++) {
+    //     init_pair(i, i, COLOR_BLACK);
+    //     attron(COLOR_PAIR(i));
+    //     printw("Color %d\n", i);
+    //     attroff(COLOR_PAIR(i));
+    // }
+    // refresh();
+    // getch();
 
     init_gameplay();
-    render_gameplay_BAD();
-
-    getch();	// Wait for key press before exiting.
+    gameplay_loop();
 
     endwin();	// Main ncurses clean-up.
 
