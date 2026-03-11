@@ -113,7 +113,7 @@ int arm_timerfd(int timer_fd, bool fireOnce, long seconds, long nanoseconds) {
 }
 
 WINDOW* create_window(int x, int y, int width, int height, bool box) {
-    WINDOW* window = newwin(height, width, y, x);
+    WINDOW* window = newwin(height, width, y + 1, x);
     if (window == NULL) {
         return NULL;
     }

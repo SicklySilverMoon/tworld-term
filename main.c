@@ -17,7 +17,7 @@ int main(void) {
     cbreak();	// Do not buffer user input, retain Ctrl-Z & Ctrl-C functions.
     //raw(); 	// Do nut buffer any user input. Present all input to program.
     keypad(stdscr, TRUE); // Enable extended character (e.g. F-keys, numpad) input.
-    wtimeout(stdscr, 0); // set key press timeout to none
+    // wtimeout(stdscr, 0); // set key press timeout to none. Note: don't enable this unless you want 100% CPU usage
     curs_set(0); // Change cursor appearance. 0 invisible, 1 normal, 2 strong.
 
     if (has_colors() == FALSE) {
@@ -27,27 +27,11 @@ int main(void) {
     }
     start_color();
     use_default_colors();
+    refresh(); //force a refresh BEFORE other things
+
     if (init_graphics()) {
         return 1;
     }
-
-    // printw("COLORS=%d\n", COLORS);
-    // printw("COLOR_PAIRS=%d\n", COLOR_PAIRS);
-    //
-    // for (int i = 0; i < COLORS && i < 16; i++) {
-    //     init_pair(i, i, COLOR_BLACK);
-    //     attron(COLOR_PAIR(i));
-    //     printw("Color %d\n", i);
-    //     attroff(COLOR_PAIR(i));
-    // }
-    // refresh();
-    // getch();
-
-    init_gameplay_graphics();
-
-    touchwin(stdscr); //force graphical updates to the entire system
-    refresh();
-
     init_gameplay();
     gameplay_loop();
 

@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "menubar.h"
 #include "misc.h"
 
 WINDOW* level_win;
@@ -17,14 +18,14 @@ void split_colours(short combined, NCURSES_COLOUR_T* top, NCURSES_COLOUR_T* bott
 }
 
 int init_graphics() {
-    if (COLORS < 16) {
+    if (COLOURS < 16) {
         endwin();
         eprintf("Your terminal doesn't support bright colours\n");
         return 1;
     }
-    if (COLOR_PAIRS < 257) {
+    if (COLOUR_PAIRS < 256) {
         endwin();
-        eprintf("Terminal doesn't support enough color pairs\n");
+        eprintf("Terminal doesn't support enough colour pairs\n");
         return 1;
     }
 
@@ -33,6 +34,39 @@ int init_graphics() {
             init_pair(combine_colours(top, bot), top, bot);
         }
     }
+
+    if (init_menubar() != 0) {
+        return -1;
+    }
+    if (init_gameplay_graphics() != 0) {
+        return -1;
+    }
+
+    doupdate();
+    return 0;
+}
+
+int init_gameplay_graphics() {
+    int width, height;
+    getmaxyx(stdscr, height, width);
+
+    level_win = create_window(0, 0, GAME_WINDOW_WIDTH + 2, GAME_WINDOW_HEIGHT + 2, true);
+    if (!level_win) {
+        return -1;
+    }
+    keypad(level_win, TRUE);
+    // wtimeout(level_win, 0);
+    // nodelay(level_win, TRUE);
+
+    info_win = create_window(GAME_WINDOW_WIDTH + 2, 0, width - (GAME_WINDOW_WIDTH + 2), GAME_WINDOW_HEIGHT + 2, true);
+    if (!info_win) {
+        return -1;
+    }
+    keypad(info_win, TRUE);
+    // wtimeout(info_win, 0);
+    // nodelay(info_win, TRUE);
+
+    doupdate();
     return 0;
 }
 
@@ -229,29 +263,6 @@ TileGraphic get_graphic(TileID top_tile, TileID bottom_tile) {
     return top;
 }
 
-int init_gameplay_graphics() {
-    int width, height;
-    getmaxyx(stdscr, height, width);
-
-    level_win = create_window(0, 0, GAME_WINDOW_WIDTH + 2, GAME_WINDOW_HEIGHT + 2, true);
-    if (!level_win) {
-        return -1;
-    }
-    keypad(level_win, TRUE);
-    wtimeout(level_win, 0);
-    nodelay(level_win, TRUE);
-
-    info_win = create_window(GAME_WINDOW_WIDTH + 2, 0, width - (GAME_WINDOW_WIDTH + 2), GAME_WINDOW_HEIGHT + 2, true);
-    if (!info_win) {
-        return -1;
-    }
-    keypad(info_win, TRUE);
-    wtimeout(info_win, 0);
-    nodelay(info_win, TRUE);
-
-    return 0;
-}
-
 static void get_grid(Level const* level, TileID grid[GAME_WINDOW_HEIGHT][GAME_WINDOW_WIDTH][2]) {
     Position chip_pos = Actor_get_position(Level_get_chip_actor(level));
     int xdisp = ((chip_pos % MAP_WIDTH) * 8)  / 2 - (GAME_WINDOW_WIDTH / 2) * 4; //Stolen straight from TW baby don't ask me what it does
@@ -288,7 +299,6 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
     getmaxyx(info_win, h_info, w_info);
 
     if (meta->title) {
-        // wcolor_set(info_win, combine_colours(COLOUR_WHITE, COLOUR_RED), NULL);
         int title_len = strlen(meta->title);
         int title_x = (w_info - title_len) / 2;
         mvwprintw(info_win, 1, title_x, "%s", meta->title);
@@ -332,9 +342,9 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
         }
         char buf[MB_CUR_MAX * 2];
         c32_to_mb(buf, graphic.tile_char);
-        wattron(info_win, COLOR_PAIR(graphic.colour));
+        wattron(info_win, COLOUR_PAIR(graphic.colour));
         mvwaddstr(info_win, 7, keys_x + i, buf);
-        wattroff(info_win, COLOR_PAIR(graphic.colour));
+        wattroff(info_win, COLOUR_PAIR(graphic.colour));
     }
 
     char const boots_label[] = "BOOTS";
@@ -359,9 +369,9 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
         }
         char buf[MB_CUR_MAX * 2];
         c32_to_mb(buf, graphic.tile_char);
-        wattron(info_win, COLOR_PAIR(graphic.colour));
+        wattron(info_win, COLOUR_PAIR(graphic.colour));
         mvwaddstr(info_win, 7, boots_x + i, buf);
-        wattroff(info_win, COLOR_PAIR(graphic.colour));
+        wattroff(info_win, COLOUR_PAIR(graphic.colour));
     }
 
     if (meta->author) {
@@ -370,7 +380,7 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
         mvwprintw(info_win, 9, author_x, "%s", meta->author);
     }
 
-    wrefresh(info_win);
+    wnoutrefresh(info_win);
 }
 
 static void render_level(Level const* level, WINDOW* level_win) {
@@ -391,13 +401,13 @@ static void render_level(Level const* level, WINDOW* level_win) {
             char buf[MB_CUR_MAX * 2];
             c32_to_mb(buf, graphic.tile_char);
 
-            wattron(level_win, COLOR_PAIR(graphic.colour));
+            wattron(level_win, COLOUR_PAIR(graphic.colour));
             mvwaddstr(level_win, y + 1, x + 1, buf);
-            wattroff(level_win, COLOR_PAIR(graphic.colour));
+            wattroff(level_win, COLOUR_PAIR(graphic.colour));
         }
     }
 
-    wrefresh(level_win);
+    wnoutrefresh(level_win);
 }
 
 void render_gameplay(Level const* level, LevelMetadata const* meta) {

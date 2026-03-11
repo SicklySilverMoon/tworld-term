@@ -3,10 +3,14 @@
 
 #include <uchar.h>
 #include <curses.h>
+#include <menu.h>
 
 #include "formats.h"
 
 #define NCURSES_COLOUR_T NCURSES_COLOR_T
+#define COLOUR_PAIR(p) COLOR_PAIR(p)
+#define COLOURS COLORS
+#define COLOUR_PAIRS COLOR_PAIRS
 
 #define COLOUR_BLACK          COLOR_BLACK
 #define COLOUR_RED            COLOR_RED
@@ -38,8 +42,8 @@ short combine_colours(NCURSES_COLOUR_T top, NCURSES_COLOUR_T bottom);
 void split_colours(short combined, NCURSES_COLOUR_T* top, NCURSES_COLOUR_T* bottom);
 
 int init_graphics();
-TileGraphic get_graphic(TileID top, TileID bottom);
 int init_gameplay_graphics();
+TileGraphic get_graphic(TileID top, TileID bottom);
 void render_gameplay(Level const* level, LevelMetadata const* meta);
 int game_get_key();
 
