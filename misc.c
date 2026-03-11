@@ -53,26 +53,7 @@ uint8_t* read_file(const char* path, size_t* out_size) {
         return NULL;
     }
 
-    size_t total_read = 0;
-    while (total_read < size) {
-        ssize_t bytes_read = read(fd, buffer + total_read, size - total_read);
-
-        if (bytes_read < 0) {
-            if (errno == EINTR)
-                continue;
-
-            free(buffer);
-            close(fd);
-            return NULL;
-        }
-
-        if (bytes_read == 0) {
-            break;  // unexpected EOF
-        }
-
-        total_read += bytes_read;
-    }
-
+    ssize_t total_read = read_data(fd, buffer, size);
     close(fd);
 
     if (total_read != size) {
@@ -142,4 +123,10 @@ WINDOW* create_window(int x, int y, int width, int height, bool box) {
     }
     wrefresh(window);
     return window;
+}
+
+void c32_to_mb(char buf[MB_CUR_MAX * 2], char32_t c) { //MB_CUR_MAX * 2 can hold at minimum 2 chars
+    mbstate_t state = {0};
+    size_t written = c32rtomb(buf, c, &state);
+    c32rtomb(buf + written, U'\0', &state); //NUL term, proper style
 }

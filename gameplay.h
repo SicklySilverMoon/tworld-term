@@ -5,9 +5,6 @@
 
 #include "formats.h"
 
-#define GAME_WINDOW_WIDTH 9
-#define GAME_WINDOW_HEIGHT 9
-
 int init_gameplay();
 void gameplay_loop();
 

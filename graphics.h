@@ -26,6 +26,9 @@
 #define COLOUR_BRIGHT_CYAN    14
 #define COLOUR_BRIGHT_WHITE   15
 
+#define GAME_WINDOW_WIDTH 9
+#define GAME_WINDOW_HEIGHT 9
+
 typedef struct TileGraphic {
     char32_t tile_char; //lets us use any possible character, although it will be thrown through a c32rtomb
     short colour;
@@ -36,5 +39,8 @@ void split_colours(short combined, NCURSES_COLOUR_T* top, NCURSES_COLOUR_T* bott
 
 int init_graphics();
 TileGraphic get_graphic(TileID top, TileID bottom);
+int init_gameplay_graphics();
+void render_gameplay(Level const* level, LevelMetadata const* meta);
+int game_get_key();
 
 #endif //TWORLD_TERM_GRAPHICS_H

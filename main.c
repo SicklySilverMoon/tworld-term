@@ -17,6 +17,7 @@ int main(void) {
     cbreak();	// Do not buffer user input, retain Ctrl-Z & Ctrl-C functions.
     //raw(); 	// Do nut buffer any user input. Present all input to program.
     keypad(stdscr, TRUE); // Enable extended character (e.g. F-keys, numpad) input.
+    wtimeout(stdscr, 0); // set key press timeout to none
     curs_set(0); // Change cursor appearance. 0 invisible, 1 normal, 2 strong.
 
     if (has_colors() == FALSE) {
@@ -41,6 +42,11 @@ int main(void) {
     // }
     // refresh();
     // getch();
+
+    init_gameplay_graphics();
+
+    touchwin(stdscr); //force graphical updates to the entire system
+    refresh();
 
     init_gameplay();
     gameplay_loop();
