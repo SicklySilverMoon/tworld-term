@@ -5,14 +5,14 @@ project('tworld-term', 'c',
 libchips_proj = subproject('libchips')
 libchips_dep = libchips_proj.get_variable('libchips_dep')
 curses = dependency('curses')
-menu = dependency('menu')
-panel = dependency('panel')
+#menu = dependency('menu')
+#panel = dependency('panel')
 
 sources = ['main.c', 'gameplay.c', 'misc.c', 'graphics.c', 'menubar.c']
 
 tworld_term = executable('tworld_term',
                          sources,
-                         dependencies: [libchips_dep, curses, menu, panel],
+                         dependencies: [libchips_dep, curses], #, menu, panel],
                          install : true
                         )
 
