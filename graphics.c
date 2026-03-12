@@ -292,31 +292,34 @@ static void get_grid(Level const* level, TileID grid[GAME_WINDOW_HEIGHT][GAME_WI
     }
 }
 
-static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* info_win) {
+static void render_info(TWLevel const* level) {
     box(info_win, 0, 0);
 
     int w_info, h_info;
     getmaxyx(info_win, h_info, w_info);
 
-    if (meta->title) {
-        int title_len = strlen(meta->title);
+    if (level->metadata->title) {
+        int title_len = strlen(level->metadata->title);
         int title_x = (w_info - title_len) / 2;
-        mvwprintw(info_win, 1, title_x, "%s", meta->title);
+        mvwprintw(info_win, 1, title_x, "%s", level->metadata->title);
     }
 
     char const chips_label[] = "CHIPS";
     size_t chips_label_len = sizeof(chips_label) - 1;
     int chips_x = w_info / 4 - chips_label_len / 2;
     mvwprintw(info_win, 3, chips_x, "%s", chips_label);
-    mvwprintw(info_win, 4, chips_x, "%-5zu", (size_t)Level_get_chips_left(level));
+    mvwprintw(info_win, 4, chips_x, "%-5zu", (size_t)Level_get_chips_left(level->level));
 
     char const time_label[] = "TIME";
     size_t time_label_len = sizeof(time_label) - 1;
     int time_x = (w_info * 3) / 4 - time_label_len / 2;
     mvwprintw(info_win, 3, time_x, "%s", time_label);
-    size_t time = Level_get_time_limit(level);
+    int64_t time = Level_get_time_limit(level->level);
     if (time != 0) {
-        time = (time - Level_get_current_tick(level)) / 20 + Level_get_time_offset(level);
+        time = (time - Level_get_current_tick(level->level)) / 20 + Level_get_time_offset(level->level);
+    }
+    if (time < 0) {
+        time = 0;
     }
     mvwprintw(info_win, 4, time_x, "%-4zu", time);
 
@@ -324,7 +327,7 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
     size_t keys_label_len = sizeof(keys_label) - 1;
     int keys_x = w_info / 4 - keys_label_len / 2;
     mvwprintw(info_win, 6, keys_x, "%s", keys_label);
-    uint8_t* keys = Level_get_player_keys(level);
+    uint8_t* keys = Level_get_player_keys(level->level);
     for (size_t i = 0; i < 4; i++) {
         TileGraphic graphic;
         if (keys[i]) {
@@ -351,7 +354,7 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
     size_t boots_label_len = sizeof(boots_label) - 1;
     int boots_x = (w_info * 3) / 4 - boots_label_len / 2;
     mvwprintw(info_win, 6, boots_x, "%s", boots_label);
-    uint8_t* boots = Level_get_player_boots(level);
+    uint8_t* boots = Level_get_player_boots(level->level);
     for (size_t i = 0; i < 4; i++) {
         TileGraphic graphic;
         if (boots[i]) {
@@ -374,23 +377,23 @@ static void render_info(Level const* level, LevelMetadata const* meta, WINDOW* i
         wattroff(info_win, COLOUR_PAIR(graphic.colour));
     }
 
-    if (meta->author) {
-        int author_len = strlen(meta->author);
+    if (level->metadata->author) {
+        int author_len = strlen(level->metadata->author);
         int author_x = (w_info - author_len) / 2;
-        mvwprintw(info_win, 9, author_x, "%s", meta->author);
+        mvwprintw(info_win, 9, author_x, "%s", level->metadata->author);
     }
 
     wnoutrefresh(info_win);
 }
 
-static void render_level(Level const* level, WINDOW* level_win) {
+static void render_level(TWLevel const* level) {
     box(level_win, 0, 0);
 
     int w_level, h_level;
     getmaxyx(level_win, h_level, w_level);
 
     TileID grid[GAME_WINDOW_HEIGHT][GAME_WINDOW_WIDTH][2];
-    get_grid(level, grid);
+    get_grid(level->level, grid);
 
     for (int y = 0; y < GAME_WINDOW_HEIGHT; y++) {
         for (int x = 0; x < GAME_WINDOW_WIDTH; x++) {
@@ -410,9 +413,9 @@ static void render_level(Level const* level, WINDOW* level_win) {
     wnoutrefresh(level_win);
 }
 
-void render_gameplay(Level const* level, LevelMetadata const* meta) {
-    render_level(level, level_win);
-    render_info(level, meta, info_win);
+void render_gameplay(TWLevel const* level) {
+    render_level(level);
+    render_info(level);
 
     doupdate();
 }

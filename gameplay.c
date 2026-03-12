@@ -7,12 +7,16 @@
 #include "formats.h"
 #include "logic.h"
 
+#include "chips/level.h"
 #include "misc.h"
 #include "graphics.h"
 
-LevelSet* level_set;
-LevelMetadata* level_metadata;
-Level* level;
+LevelSet* level_set = NULL;
+TWLevel level = {0};
+
+bool paused = false;
+bool started = false;
+GameInput game_input = DIRECTION_NIL;
 
 int init_gameplay() {
     size_t size;
@@ -25,20 +29,16 @@ int init_gameplay() {
         return -1;
     }
     level_set = res.value;
-    level_metadata = LevelSet_get_level(level_set, 0);
-    Result_LevelPtr res_level = LevelMetadata_make_level(level_metadata, &ms_logic);
-    if (!res_level.success) {
-        eprintf("%s\n", res_level.error);
-        free(res_level.error);
+    if (TWLevel_new(&level, level_set, 0) != 0) {
+        LevelSet_free(level_set);
+        level_set = NULL;
         return -1;
     }
-    level = res_level.value;
-
     return 0;
 }
 
 void gameplay_loop() {
-    render_gameplay(level, level_metadata);
+    render_gameplay(&level);
 
     while (true) {
         int key = game_get_key(); //wait for key press
@@ -54,13 +54,12 @@ void gameplay_loop() {
         } else if (key == KEY_DOWN) {
             game_input = DIRECTION_SOUTH;
         }
-        Level_set_game_input(level, game_input);
-        Level_tick(level);
-        Level_set_game_input(level, DIRECTION_NIL);
-        Level_tick(level);
-        Level_tick(level);
-        Level_tick(level);
+        TWLevel_set_input(&level, game_input);
+        TWLevel_tick(&level);
+        TWLevel_tick(&level);
+        TWLevel_tick(&level);
+        TWLevel_tick(&level);
 
-        render_gameplay(level, level_metadata);
+        render_gameplay(&level);
     }
 }

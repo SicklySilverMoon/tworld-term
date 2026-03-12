@@ -7,6 +7,8 @@
 
 #include "formats.h"
 
+#include "chips/level.h"
+
 #define NCURSES_COLOUR_T NCURSES_COLOR_T
 #define COLOUR_PAIR(p) COLOR_PAIR(p)
 #define COLOURS COLORS
@@ -44,7 +46,7 @@ void split_colours(short combined, NCURSES_COLOUR_T* top, NCURSES_COLOUR_T* bott
 int init_graphics();
 int init_gameplay_graphics();
 TileGraphic get_graphic(TileID top, TileID bottom);
-void render_gameplay(Level const* level, LevelMetadata const* meta);
+void render_gameplay(TWLevel const* level);
 int game_get_key();
 
 #endif //TWORLD_TERM_GRAPHICS_H

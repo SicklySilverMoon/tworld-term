@@ -8,7 +8,7 @@ curses = dependency('curses')
 #menu = dependency('menu')
 #panel = dependency('panel')
 
-sources = ['main.c', 'gameplay.c', 'misc.c', 'graphics.c', 'menubar.c']
+sources = ['main.c', 'gameplay.c', 'misc.c', 'graphics.c', 'menubar.c', 'chips/level.c']
 
 tworld_term = executable('tworld_term',
                          sources,
