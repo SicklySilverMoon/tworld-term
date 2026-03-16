@@ -47,6 +47,5 @@ int init_graphics();
 int init_gameplay_graphics();
 TileGraphic get_graphic(TileID top, TileID bottom);
 void render_gameplay(TWLevel const* level);
-int game_get_key();
 
 #endif //TWORLD_TERM_GRAPHICS_H

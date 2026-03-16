@@ -419,7 +419,3 @@ void render_gameplay(TWLevel const* level) {
 
     doupdate();
 }
-
-int game_get_key() {
-    return wgetch(stdscr);
-}

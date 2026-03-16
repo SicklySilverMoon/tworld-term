@@ -5,6 +5,16 @@
 #include "graphics.h"
 #include "misc.h"
 
+typedef struct TWMenuBarEntries {
+    char const* name;
+    int offset;
+} TWMenuBarEntries;
+
+typedef struct TWDropdownMenuEntries {
+    char const* name;
+    void (*callback)();
+} TWDropdownMenuEntries;
+
 WINDOW* menu_bar;
 WINDOW* dropdown_menu;
 
@@ -12,6 +22,14 @@ int menu_selection;
 int dropdown_menu_selection;
 
 #define BREAK ((void*) 0x01)
+
+TWMenuBarEntries entries[] = {
+    {" File (F1) ", 0},
+    {" Level (F2) ", 11},
+    {" Options (F3) ", 23},
+    {" Solution (F4) ", 37},
+    {" Help (F5) ", 52},
+};
 
 void draw_menu_bar();
 
@@ -26,13 +44,6 @@ int init_menubar() {
 }
 
 void draw_menu_bar() {
-    char const* options[] = {
-        " File (F1) ",
-        " Level (F2) ",
-        " Options (F3) ",
-        " Solution (F4) ",
-        " Help (F5) ",
-    };
     if (!menu_bar)
         return;
 
@@ -40,13 +51,13 @@ void draw_menu_bar() {
     werase(menu_bar);
 
     int current_pos = 0;
-    for (int i = 0; i < (sizeof(options) / sizeof(options[0])); i++) {
+    for (int i = 0; i < (sizeof(entries) / sizeof(entries[0])); i++) {
         if (i == menu_selection)
             attroff(A_REVERSE);
-        mvwprintw(menu_bar, 0, current_pos, "%s", options[i]);
+        mvwprintw(menu_bar, 0, current_pos, "%s", entries[i].name);
         if (i == menu_selection)
             attron(A_REVERSE);
-        current_pos += strlen(options[i]);
+        current_pos += entries[i].offset;
     }
 
     wnoutrefresh(menu_bar);
@@ -103,7 +114,16 @@ void open_dropdown_menu(char const* entries[], int num_entries, int x_offset) {
     dropdown_menu = create_window(x_offset, 0, width + 2, height + 2, true);
     if (!dropdown_menu)
         return;
+    menu_selection = 0;
     draw_dropdown_menu(entries, num_entries);
+}
+
+void close_dropdown_menu() {
+    if (dropdown_menu) {
+        delwin(dropdown_menu);
+        dropdown_menu = NULL;
+        menu_selection = 0;
+    }
 }
 
 static void draw_file_menu(bool in_gameplay) {
@@ -151,3 +171,5 @@ static void draw_solution_menu() {
 static void draw_help_menu() {
 
 }
+
+

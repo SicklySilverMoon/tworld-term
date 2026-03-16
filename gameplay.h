@@ -6,6 +6,6 @@
 #include "formats.h"
 
 int init_gameplay();
-void gameplay_loop();
+void gameplay_tick(int key);
 
 #endif //TWORLD_TERM_GAMEPLAY_H
